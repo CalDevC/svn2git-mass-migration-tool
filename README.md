@@ -1,119 +1,77 @@
 # UPI svn2git
 
 # Usage Instructions
-`./launcher.sh`
+**If you have any issues please visit the Troubleshooting section of this README**
 
-# The manual migration process
+Before running this script for the first time, some initial setup is required.
 
-#### INSTRUCTIONS ON HOW TO MOVE UPI SVN REPOSITORIES OVER TO GIT LAB WITHOUT USING THE SCRIPT:
-**Created 10/13/21 by WUPQTA**
-
-**This guide is made for windows systems that have WSL installed.\
-If you do not have WSL you will need to install it first.\
-All commands are meant to be run in the WSL terminal.\
-For additional help with problems please reference the "Cut over migration with svn2git" section of the following article:**\
-https://docs.gitlab.com/ee/user/project/import/svn.html#cut-over-migration-with-svn2git
-
-
-1. Create a repo in Git Lab
-	- Navigate to http://upigit
-
-	- Go to the group you want the repo to exist in and select:\
-	  	New Project > Create blank project
-
-	- Enter the project name, select the group name  from the dropdown under Project URL, 
-	  make its visibility level internal, and do not initialize with a readme.
-
-2. Install necessary conversion software (svn2git)
-	- Run the following commands to install svn2git:
+1. Install needed software and clean scripts
+   - To avoid some annoying issues created by Windows line endings we will use dos2unix to first clean up the scripts. This step may not be necessary for everyone, but it's just a precaution.
+   - Install it with `sudo apt install dos2unix` or using your equivalent package manager install command
+   - You can now clean the cleaner script by running `dos2unix ./cleaner.sh` from the project directory
+   - run `./cleaner.sh` to clean the remaining files.
+   - Next, install the necessary conversion software (svn2git) by running the following commands or your system's equivalent:
 	  	```
 		sudo apt-get install git-core git-svn ruby
 	 	sudo gem install svn2git
 		```
 
-3. Down-grade your system's SSL:
-	- Changing this will lower the security of your system. You should change these settings 
-	  back as soon as you have transferred the necessary repo.
+2. Initialize your settings
+   - Next you will need to initialize your settings.
+   - Navigate to the settings.sh file and fill out each variable with your information.
 
-	- Run the following to find the location of your SSL conf file:\
-		`openssl version -d`
+3. Specify the SVN projects to clone
+   - Open the repoNames.txt file and list the names of each of the SVN projects you want to migrate.
+   - If you have a very large number of projects and no pre-made list of project names you can easily have SVN generate a list for you. Simply replace `<url>` in the following command with the url to the repository folder holding all of the projects you plan to migrate and run it \
+     `svn list <url>`
+   - You can copy the printed list and remove any extra `/`'s from the end of the project names using a search and replace tool. 
 
-	- Navigate to the printed directory
+4. Run the script
+   - With the initial setup out of the way, you can now run the program using `./launcher.sh` and watch your Git Lab group fill up with all of your projects.
 
-	- Before making edits to the file it's a good idea to back it 
-	  up first. Make a copy to your desktop using: \
-	    `sudo cp ./openssl.cnf ~/Desktop`
+# Troubleshooting
 
-	- Make the changes to the original file (not the desktop copy)
+I came across several issues while developing this tool and I will share that knowledge with you here in hopes that it will help some of you in the future. For additional help with problems please reference the "Cut over migration with svn2git" section of the following article:\
+https://docs.gitlab.com/ee/user/project/import/svn.html#cut-over-migration-with-svn2git
 
-	- Add the following to the top of the file:\
-		`openssl_conf = default_conf`
+#### svn2git has problems connecting to your remote SVN server
+For me, this was an issue with the server that the SVN repository was hosted on. It was very old and was using an outdated version of SSL. I had no access to it to upgrade its SSL so I had to downgrade my system's SSL temporarily. I've listed the steps below.
+   - Changing this will lower the security of your system. You should change these settings back as soon as you have transferred the necessary repositories.
 
-	- Add the following to the bottom of the file:
+   - Run the following to find the location of your SSL conf file:\
+   	`openssl version -d`
 
-		```
-		[ default_conf ]
+   - Navigate to the printed directory
 
-		ssl_conf = ssl_sect
+   - Before making edits to the file it's a good idea to back it 
+     up first. Make a copy to your desktop using: \
+       `sudo cp ./openssl.cnf ~/Desktop`
 
-		[ssl_sect]
+   - Make the changes to the original file (not the desktop copy)
 
-		system_default = ssl_default_sect
+   - Add the following to the top of the file:\
+   	`openssl_conf = default_conf`
 
-		[ssl_default_sect]
-		MinProtocol = TLSv1
-		CipherString = DEFAULT:@SECLEVEL=1
-		```
+   - Add the following to the bottom of the file:
 
-	- Save your changes
+   	```
+   	[ default_conf ]
 
-4. Create a local git repo from the SVN repo
-	- Navigate to an EMPTY folder on your local system where you can store
-	  the temporary local repo
+   	ssl_conf = ssl_sect
 
-	- The next command will need to be customized. You will fill in some specific 
-	  information and will need to call the command with options appropriate for 
-	  the condition of the SVN repo you are cloning. To determine the additional 
-	  options that you will need visit the usage section of the README of this git repo:\
-	   	https://github.com/nirvdrum/svn2git#usage
+   	[ssl_sect]
+
+   	system_default = ssl_default_sect
+
+   	[ssl_default_sect]
+   	MinProtocol = TLSv1
+   	CipherString = DEFAULT:@SECLEVEL=1
+   	```
+
+   - Save your changes
+
+   - You will need to revert your SSL configuration changes so that you don't leave your system vulnerable. To do this, navigate back to your openssl.cnf file and insert a # at the beginning of every line you added to the file to comment them out. This will keep them from being used but preserve lines for future use. Reference step 3 
+     of this guide if you can't remember the file's location or what lines you added.
 
 
-	- Fill in the `<SVN url>` and `<username>` pieces of this template command.
-	  The SVN url should start with https://projauto.upi.net:8443/svn/ and link to 
-	  the SVN repo that you want to clone. The username is your wup account. After 
-	  filling out the template, run the command and provide your SVN repo password.
-
-	  **NOTE:** The options included in the following command are necessary along with
-	            the other options you deemed necessary in the previous step. Failure to 
-		   use the correct options will result in problems connecting your repos. Even 
-		   though our SVN repo is password protected, **do not** use the --password option.
-
-	    `svn2git <SVN url> --no-minimize-url --username <username>`
-	
-5. Connect and push your local git repo to the remote repo
-	- Get the clone link to the git repo you created earlier. To do this go to the repo, 
-	  click Clone, and copy the Clone with HTTP link.
-
-	- Fill in the `<git url>` piece of this template command with the clone link. Run the 
-	  command and provide your upigit credentials if necessary.\
-		`git remote add origin <git url>`
-
-	- Run the following 2 commands and provide your upigit credentials if necessary.\
-		```
-		git push --all origin
-		git push --tags origin
-		```
-
-6. Clean up
-	- Your repo should now be pushed to the remote git repo located at 
-	  `http://upigit/<your repo path>` so you can delete the file holding your local version 
-	  of this repo.
-
-	- You will need to revert your SSL configuration changes so that you don't leave your 
-	  system open vulnerable. To do this, navigate back to your openssl.cnf file and insert 
-	  a # at the beginning of every line you added to the file to comment them out. This 
-	  will keep them from being used but preserve lines for future use. Reference step 3 
-	  of this guide if you can't remember the file's location or what lines you added.
-
-	- Save your changes
 
