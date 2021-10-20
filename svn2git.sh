@@ -12,6 +12,7 @@ svnNameLower=$(echo $svnName | tr [:upper:] [:lower:])
 svnRepo="$url/$folderName/$svnName/"
 
 #Create/clean the folder
+mkdir tempSVN
 cd ./tempSVN/
 rm -rf *
 rm -rf .*
@@ -27,7 +28,9 @@ cd $svnName
 ls -a >> ../../ls.txt
 
 #Create/clean the folder
-cd ../../tempGit
+cd ../../
+mkdir tempGit
+cd ./tempGit
 rm -rf *
 rm -rf .*
 git init
@@ -85,4 +88,3 @@ printf "\n$svnName PUSHED TO GIT LAB\n" >> ../status.txt
 #Clean up
 rm -r *
 rm -rf .git
-
