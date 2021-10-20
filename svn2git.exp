@@ -1,0 +1,39 @@
+#!/usr/bin/expect -f
+
+#Assign args to variables
+set svnUrl [lindex $argv 0]
+set gitUrl [lindex $argv 1]
+set svnUsername [lindex $argv 2]
+set svnPassword [lindex $argv 3]
+set gitUsername [lindex $argv 4]
+set gitPassword [lindex $argv 5]
+set userGitUrl [lindex $argv 6]
+set repoName [lindex $argv 7]
+
+#Remove timeout and launch script with args
+set timeout -1
+spawn ./svn2git.sh $svnUsername $gitUsername $gitPassword $repoName
+match_max 100000
+
+#Handle responses
+expect -exact "Password for '$svnUsername': "
+sleep 1
+send -- "$svnPassword\r"
+
+expect -exact "Username for '$gitUrl': "
+sleep 1
+send -- "$gitUsername\r"
+
+expect -exact "Password for '$userGitUrl': "
+sleep 1
+send -- "$gitPassword\r"
+
+expect -exact "Username for '$gitUrl': "
+sleep 1
+send -- "$gitUsername\r"
+
+expect -exact "Password for '$userGitUrl': "
+sleep 1
+send -- "$gitPassword\r"
+
+expect eof
