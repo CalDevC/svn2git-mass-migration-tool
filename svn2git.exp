@@ -12,7 +12,7 @@ set repoName [lindex $argv 7]
 
 #Remove timeout and launch script with args
 set timeout -1
-spawn ./svn2git.sh $svnUsername $gitUsername $gitPassword $repoName
+spawn ./svn2git.sh $svnUsername $svnPassword $gitUsername $gitPassword $repoName
 match_max 100000
 
 #Handle responses

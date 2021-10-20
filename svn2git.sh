@@ -3,13 +3,14 @@
 
 #Load args
 svnUsername=$1
-gitUsername=$2
-gitPassword=$3
-svnName=$4
+svnPassword=$2
+gitUsername=$3
+gitPassword=$4
+svnName=$5
 
 source settings.sh
 svnNameLower=$(echo $svnName | tr [:upper:] [:lower:])
-svnRepo="$url/$folderName/$svnName/"
+svnRepo="$svnUrl/$folderName/$svnName/"
 
 #Create/clean the folder
 mkdir tempSVN
@@ -76,7 +77,7 @@ curl --silent --header "PRIVATE-TOKEN: $apiKey" -XPOST "$gitUrl/api/v4/projects?
 
 printf "\nCOMPLETED GIT REPO CREATION FOR $svnName\n"
 
-gitRepo="$gitUrl/$groupURL/$svnNameLower.git"
+gitRepo="$gitUrl/$groupURL/$svnName.git"
 
 #Push the new git repo
 printf "\nPUSHING $svnName TO GIT LAB REMOTE REPO...\n"
