@@ -1,4 +1,4 @@
-# UPI svn2git
+# svn2git Mass Migration Tool
 I created this project for personal use after looking around for an easy way to do a mass migration of SVN repositories over to Git Lab. After struggling to find an easy to use tool I decided to make my own. This project will migrate as many SVN projects as you want from a remote repository and automagically move them over to your Git Lab instance. Breaking down the process, these scripts will:
    - Perform a local checkout of your SVN repositories
    - Examine their structure to determine what options to use with svn2git 
