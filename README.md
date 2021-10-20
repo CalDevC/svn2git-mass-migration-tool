@@ -1,4 +1,12 @@
 # UPI svn2git
+I created this project for personal use after looking around for an easy way to do a mass migration of SVN repositories over to Git Lab. After struggling to find an easy to use tool I decided to make my own. This project will migrate as many SVN projects as you want from a remote repository and automagically move them over to your Git Lab instance. Breaking down the process, these scripts will:
+   - Perform a local checkout of your SVN repositories
+   - Examine their structure to determine what options to use with svn2git 
+   - Convert them to a git repositories on your local machine using svn2git
+   - Create a remote repository of the same name in a specified group in your Git Lab instance
+   - Push the local git repos to their individual remote Git Lab repos
+ 
+This project is somewhat customized for my needs but has a lot of potential and can easily be modified to do things exactly the way you want.
 
 # Usage Instructions
 **If you have any issues please visit the Troubleshooting section of this README**
@@ -31,10 +39,13 @@ Before running this script for the first time, some initial setup is required.
 
 # Troubleshooting
 
-I came across several issues while developing this tool and I will share that knowledge with you here in hopes that it will help some of you in the future. For additional help with problems please reference the "Cut over migration with svn2git" section of the following article:\
+I came across several issues while developing this tool and I will share that knowledge with you here along with some general troubleshooting tips in hopes that it will help some of you in the future. For additional help with problems please reference the "Cut over migration with svn2git" section of the following article:\
 https://docs.gitlab.com/ee/user/project/import/svn.html#cut-over-migration-with-svn2git
 
-#### svn2git has problems connecting to your remote SVN server
+### Creating the Git Lab repo via the api is failing
+This could be caused by your private key either being incorrect or not having the proper permissions. Make sure your private key has api permissions.
+
+### svn2git has problems connecting to your remote SVN server
 For me, this was an issue with the server that the SVN repository was hosted on. It was very old and was using an outdated version of SSL. I had no access to it to upgrade its SSL so I had to downgrade my system's SSL temporarily. I've listed the steps below.
    - Changing this will lower the security of your system. You should change these settings back as soon as you have transferred the necessary repositories.
 
@@ -54,19 +65,17 @@ For me, this was an issue with the server that the SVN repository was hosted on.
 
    - Add the following to the bottom of the file:
 
-   	```
-   	[ default_conf ]
+	[ default_conf ]
 
-   	ssl_conf = ssl_sect
+	ssl_conf = ssl_sect
 
-   	[ssl_sect]
+	[ssl_sect]
 
-   	system_default = ssl_default_sect
+	system_default = ssl_default_sect
 
-   	[ssl_default_sect]
-   	MinProtocol = TLSv1
-   	CipherString = DEFAULT:@SECLEVEL=1
-   	```
+	[ssl_default_sect]
+	MinProtocol = TLSv1
+	CipherString = DEFAULT:@SECLEVEL=1
 
    - Save your changes
 
